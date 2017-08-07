@@ -23,10 +23,10 @@
     <!-- 下方填写自己相应数据库的驱动,密码等等-->
     <bean id="dataSource"
 		class="org.apache.tomcat.jdbc.pool.DataSource" destroy-method="close">
-        <property name="driverClassName" value="" />
-        <property name="url" value="" />
-        <property name="username" value="" />
-        <property name="password" value="" />
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+        <property name="url" value="jdbc:sqlserver://10.12.5.236;databaseName=New360" />
+        <property name="username" value="new360_dev" />
+        <property name="password" value="new360_dev@123" />
 	</bean>
 
     <!--

@@ -8,6 +8,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.ExcessiveAttemptsException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
@@ -22,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.java.spring.model.Employee;
 import com.java.spring.model.User;
+import com.java.spring.password.PasswordHelper;
 import com.java.spring.service.HelloSpringService;
 import com.java.spring.service.MyBatisService;
 import com.java.spring.service.RedisTestService;
@@ -43,14 +50,19 @@ public class indexController{
 	@Autowired
 	MyBatisService myBatisService;
 	
+	@Autowired
+	PasswordHelper passwordHelper;
+	
 	@RequestMapping( value="/index")
 	public String helloSpring(Model model)
 			throws Exception {
 		// TODO Auto-generated method stub
 //		ModelAndView model=new ModelAndView();
+		//aop测试
 		helloSpringService.printHello("123");
 		helloSpringServiceT.printHello("456");
 		model.addAttribute("demoStr", "欢迎");
+		
 		return "index";
 	}
 	
@@ -60,6 +72,30 @@ public class indexController{
 											RedirectAttributes redirectAttributes)
 			throws Exception {
 		// TODO Auto-generated method stub
+		
+		//shiro登入测试
+		//创建令牌
+//		passwordHelper.encryptPassword(user);
+		UsernamePasswordToken token = new UsernamePasswordToken(user.getName(), user.getPassword());
+		Subject subject = SecurityUtils.getSubject();
+		try {
+            subject.login(token);
+        } catch (IncorrectCredentialsException ice) {
+            // 捕获密码错误异常
+        	System.out.println("捕获密码错误异常");
+            return "index";
+        } catch (UnknownAccountException uae) {
+            // 捕获未知用户名异常
+        	System.out.println("捕获未知用户名异常");
+            return "index";
+        } catch (ExcessiveAttemptsException eae) {
+            // 捕获错误登录过多的异常
+        	System.out.println("捕获错误登录过多的异常");
+            return "index";
+        }
+		//shiro session,Shiro管理的会话对象，要获取依然必须通过Shiro。传统的Session中不存在User对象
+		subject.getSession().setAttribute("user", user);
+		
 		//MyBatis测试
 		Employee employee=myBatisService.getUser(user.getName());
 		System.out.println("MyBatis:"+employee.getName());
@@ -72,6 +108,7 @@ public class indexController{
 		//..................................
 		model.addAttribute(user);
 		
+		//重定向测试，post->重定向->get
 		//1.session保存 return "redirect:/redirectLogin"
 		HttpSession session =request.getSession();
 		session.setAttribute("user", user);
@@ -116,6 +153,7 @@ public class indexController{
 	/***
 	 * CommonsMultipartResolver
 	 * MultipartFile
+	 * 在spring-shiro-web中设置了该请求会先检查是否已登入，如果未登录则返回index页面
 	 * 上传文件
 	 * @param clientFile
 	 * @param request
