@@ -20,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.java.spring.model.Employee;
 import com.java.spring.model.User;
 import com.java.spring.service.HelloSpringService;
+import com.java.spring.service.MyBatisService;
 import com.java.spring.service.RedisTestService;
 import com.java.spring.web.HelloNotFoundException;
 
@@ -37,6 +39,9 @@ public class indexController{
 	
 	@Autowired
 	RedisTestService redisTestService;
+	
+	@Autowired
+	MyBatisService myBatisService;
 	
 	@RequestMapping( value="/index")
 	public String helloSpring(Model model)
@@ -55,9 +60,16 @@ public class indexController{
 											RedirectAttributes redirectAttributes)
 			throws Exception {
 		// TODO Auto-generated method stub
-		//test redis ª∫¥Ê≤‚ ‘
-		redisTestService.checkRedis(user);
+		//MyBatis≤‚ ‘
+		Employee employee=myBatisService.getUser(user.getName());
+		System.out.println("MyBatis:"+employee.getName());
 		
+		//test redis ª∫¥Ê≤‚ ‘
+		User user2=user;
+		user=null;
+		user=redisTestService.checkRedis(user2);
+		
+		//..................................
 		model.addAttribute(user);
 		
 		//1.session±£¥Ê return "redirect:/redirectLogin"
