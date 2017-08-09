@@ -14,8 +14,8 @@ public class RedisTestServiceImpl implements RedisTestService{
 	 * @param user
 	 * @return
 	 */
-	@Cacheable(value="x",key="#root.args[0].name+#root.args[0].password")
 	@Override
+	@Cacheable(value="x",key="#root.args[0].name+#root.args[0].password")
 	public User checkRedis(User user){
 		System.out.println("use redis:"+user.getName()+"+"+user.getPassword());
 		return user;

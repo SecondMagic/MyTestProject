@@ -8,6 +8,13 @@
 <title><s:message code="spring.welcome"/></title>
 <script>
 var ctx = "/SpringMVCTest";
+function kickout(){  
+    var href=location.href;  
+    if(href.indexOf("kickout")>0){  
+        alert("您的账号在另一台设备上登录，您被挤下线，若不是您本人操作，请立即修改密码！");  
+    }   
+ }  
+ window.onload=kickout();
 </script>
 </head>
 <body>

@@ -36,7 +36,7 @@ public class UserRealm extends AuthorizingRealm {
         // 根据用户名查询当前用户拥有的角色
         // 将角色名称提供给info
         Set<String> roleStr=new HashSet<String>();
-        roleStr.add("x");
+        roleStr.add("admin");
         authorizationInfo.setRoles(roleStr);
         return authorizationInfo;
     }
@@ -48,9 +48,12 @@ public class UserRealm extends AuthorizingRealm {
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         String username = (String) token.getPrincipal();
         User user = new User();
-        //测试用
+        //测试用 可以使用缓存来加快响应
         user.setName("P0003501");
         user.setPassword("a43ddf9e242ca2b15e00dc95de359076");
+        if("P0003502".equals(username)){
+        	user=null;
+        }
         if (user == null) {
             // 用户名不存在抛出异常
             throw new UnknownAccountException();

@@ -2,6 +2,7 @@ package com.springMVC.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,7 +14,12 @@ import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.cache.Cache;
+import org.apache.shiro.cache.CacheManager;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
@@ -59,8 +65,10 @@ public class indexController{
 		// TODO Auto-generated method stub
 //		ModelAndView model=new ModelAndView();
 		//aop测试
+		System.out.println("AOP Test start -----------------------");
 		helloSpringService.printHello("123");
 		helloSpringServiceT.printHello("456");
+		System.out.println("AOP Test end -------------------------");
 		model.addAttribute("demoStr", "欢迎");
 		
 		return "index";
@@ -78,6 +86,8 @@ public class indexController{
 //		passwordHelper.encryptPassword(user);
 		UsernamePasswordToken token = new UsernamePasswordToken(user.getName(), user.getPassword());
 		Subject subject = SecurityUtils.getSubject();
+		System.out.println("subject.isAuthenticated:"+subject.isAuthenticated());
+		System.out.println("subject.isRemembered:"+subject.isRemembered());
 		try {
             subject.login(token);
         } catch (IncorrectCredentialsException ice) {
@@ -95,6 +105,9 @@ public class indexController{
         }
 		//shiro session,Shiro管理的会话对象，要获取依然必须通过Shiro。传统的Session中不存在User对象
 		subject.getSession().setAttribute("user", user);
+//		subject.isAuthenticated();
+		System.out.println("subject.isAuthenticated:"+subject.isAuthenticated());
+		System.out.println("subject.isRemembered:"+subject.isRemembered());
 		
 		//MyBatis测试
 		Employee employee=myBatisService.getUser(user.getName());
@@ -184,8 +197,31 @@ public class indexController{
 			}
 		}else{
 			//抛出异常状态码，一般来说这里继承RuntimeException，会抛出500状态码，但是通过@ResponseStatus修改，抛出了404异常
-			throw new HelloNotFoundException();
+			//throw new HelloNotFoundException();
 		}
 		return "showPic";
+	}
+	
+	@RequestMapping("/logout")
+	public String logout(Model model){
+		Subject subject = SecurityUtils.getSubject();
+		subject.logout();
+		return "redirect:/index";
+	}
+	
+	@RequestMapping("/view")
+	public String view(Model model){
+		Subject subject = SecurityUtils.getSubject();
+		User user=(User)subject.getSession().getAttribute("user");
+		model.addAttribute(user);
+		
+		//Test session
+//        DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) SecurityUtils.getSecurityManager();
+//        CacheManager cacheManager=securityManager.getCacheManager();
+//        DefaultWebSessionManager sessionManager = (DefaultWebSessionManager)securityManager.getSessionManager();
+//        Collection<Session> sessions1 = sessionManager.getSessionDAO().getActiveSessions();
+//        Collection<Object> cache = cacheManager.getCache("shiro-activeSessionCache").values();
+//        System.out.println("cache:"+cache);
+		return "view";
 	}
 }

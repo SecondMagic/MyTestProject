@@ -6,6 +6,13 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title><s:message code="spring.welcome"/></title>
+<script type="text/javascript">
+function logout(){
+	var form1=document.getElementById("form1");
+	form1.action="/SpringMVCTest/logout";
+	form1.submit();
+}
+</script>
 </head>
 <body>
 ${user.password}
@@ -14,6 +21,12 @@ ${user.password}
 <form method="post" action="/SpringMVCTest/uploadFile" enctype="multipart/form-data">
 <input type="file" value="上传" name="pic">
 <input type="submit" value="submit">
+</form>
+<form method="post" action="/SpringMVCTest/view">
+<input type="submit" value="view">
+</form>
+<form method="post" action="/SpringMVCTest/logout" enctype="multipart/form-data">
+<input type="submit" value="logout">
 </form>
 </body>
 </html>
